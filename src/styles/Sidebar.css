@@ -1,0 +1,198 @@
+/* =========================================
+   NEXUSAI SIDEBAR
+   ========================================= */
+
+.sidebar {
+  width: 250px;
+  min-width: 250px;
+  height: 100vh;
+
+  background: #111827;
+  color: white;
+
+  display: flex;
+  flex-direction: column;
+
+  position: fixed;
+  left: 0;
+  top: 0;
+
+  z-index: 1000;
+
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  box-sizing: border-box;
+}
+
+
+/* =========================================
+   LOGO
+   ========================================= */
+
+.logo {
+  height: 70px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 24px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+
+  box-sizing: border-box;
+}
+
+.logo h2 {
+  margin: 0;
+
+  font-size: 24px;
+  font-weight: 700;
+
+  color: white;
+}
+
+
+/* =========================================
+   NAVIGATION
+   ========================================= */
+
+.sidebar nav {
+  flex: 1;
+
+  padding: 20px 14px;
+
+  box-sizing: border-box;
+}
+
+.sidebar ul {
+  list-style: none;
+
+  padding: 0;
+  margin: 0;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 6px;
+}
+
+.sidebar li {
+  width: 100%;
+}
+
+
+/* =========================================
+   NAV LINKS
+   ========================================= */
+
+.sidebar a {
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 13px 14px;
+
+  color: #cbd5e1;
+
+  text-decoration: none;
+
+  border-radius: 8px;
+
+  font-size: 15px;
+  font-weight: 500;
+
+  transition: all 0.2s ease;
+
+  box-sizing: border-box;
+}
+
+.sidebar a:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.sidebar a.active {
+  background: #2563eb;
+  color: white;
+}
+
+
+/* =========================================
+   ICON
+   ========================================= */
+
+.icon {
+  font-size: 17px;
+
+  min-width: 18px;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================
+   LOGOUT
+   ========================================= */
+
+.logout {
+  margin: 14px;
+
+  padding: 13px 14px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 14px;
+
+  color: #cbd5e1;
+
+  border-radius: 8px;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+
+  box-sizing: border-box;
+}
+
+.logout:hover {
+  background: rgba(239, 68, 68, 0.15);
+
+  color: #f87171;
+}
+
+
+/* =========================================
+   SCROLLBAR
+   ========================================= */
+
+.sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.sidebar::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+  background: #374151;
+  border-radius: 10px;
+}
+
+
+/* =========================================
+   MOBILE
+   ========================================= */
+
+@media (max-width: 700px) {
+
+  .sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+
+}

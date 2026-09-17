@@ -1,0 +1,70 @@
+.ai-card {
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:0px 4px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.ai-card h3 {
+
+    font-size:20px;
+
+    color:#1e293b;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.insight-list {
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+
+
+.insight-item {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:12px;
+
+    background:#f8fafc;
+
+    border-radius:10px;
+
+}
+
+
+
+.insight-icon {
+
+    font-size:22px;
+
+}
+
+
+
+.insight-item p {
+
+    color:#334155;
+
+    font-size:15px;
+
+}

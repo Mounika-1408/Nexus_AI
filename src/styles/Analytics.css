@@ -1,0 +1,17 @@
+.analytics-page {
+  min-height: 100vh;
+  background: #f4f7fe;
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.analytics-page h1 {
+  color: #1e293b;
+  margin: 0 0 10px;
+  font-size: 30px;
+}
+
+.analytics-page p {
+  color: #64748b;
+  font-size: 16px;
+}

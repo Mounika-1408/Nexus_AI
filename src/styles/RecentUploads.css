@@ -1,0 +1,82 @@
+.recent-card {
+
+    background:white;
+
+    padding:25px;
+
+    border-radius:15px;
+
+    box-shadow:0px 4px 15px rgba(0,0,0,0.08);
+
+}
+
+
+.recent-card h3 {
+
+    font-size:20px;
+
+    color:#1e293b;
+
+    margin-bottom:20px;
+
+}
+
+
+
+.upload-list {
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:15px;
+
+}
+
+
+
+.upload-item {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+
+    padding:12px;
+
+    border-radius:10px;
+
+    background:#f8fafc;
+
+}
+
+
+
+.file-icon {
+
+    font-size:25px;
+
+}
+
+
+
+.file-name {
+
+    font-weight:600;
+
+    color:#334155;
+
+    margin-bottom:5px;
+
+}
+
+
+
+.upload-item span {
+
+    color:#64748b;
+
+    font-size:13px;
+
+}
