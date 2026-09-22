@@ -1,0 +1,6 @@
+id,username,email,role,status,score,created_at
+1,alex_m,alex.m@example.com,admin,active,92.5,2026-01-15T08:30:00Z
+2,sarah_k,sarah.k@example.com,user,active,84.0,2026-02-10T14:15:00Z
+3,jordan_p,jordan.p@example.com,user,pending,61.2,2026-03-01T09:45:00Z
+4,elena_r,elena.r@example.com,manager,active,78.4,2026-03-12T11:20:00Z
+5,marcus_t,marcus.t@example.com,user,inactive,45.0,2026-04-05T16:00:00Z
