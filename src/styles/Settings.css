@@ -1,0 +1,786 @@
+/* =====================================================
+   NEXUS AI - SETTINGS PAGE
+   Matches Dashboard / Analytics Design
+===================================================== */
+
+.settings-page {
+  min-height: 100vh;
+  width: 100%;
+  background: #f4f7fe;
+}
+
+/* =====================================================
+   MAIN CONTENT
+===================================================== */
+
+.settings-main {
+  margin-left: 274px !important;
+  width: calc(100% - 274px);
+  min-height: 100vh;
+
+  padding: 30px 26px 50px;
+
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.settings-header {
+  margin-bottom: 25px;
+}
+
+.settings-header h1 {
+  margin: 0;
+
+  color: #17365d;
+
+  font-size: 30px;
+  font-weight: 500;
+}
+
+.settings-header p {
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 14px;
+}
+
+/* =====================================================
+   SETTINGS CARDS
+===================================================== */
+
+.settings-card {
+  width: 100%;
+  max-width: 100%;
+
+  box-sizing: border-box;
+
+  background: #ffffff;
+
+  border-radius: 15px;
+
+  padding: 24px;
+
+  margin-bottom: 20px;
+
+  border: 1px solid #edf1f7;
+
+  box-shadow: 0 4px 15px rgba(15, 23, 42, 0.05);
+}
+
+/* =====================================================
+   CARD HEADER
+===================================================== */
+
+.settings-card-header {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding-bottom: 20px;
+
+  border-bottom: 1px solid #eef2f7;
+}
+
+.settings-card-header h2 {
+  margin: 0;
+
+  color: #17365d;
+
+  font-size: 17px;
+  font-weight: 500;
+}
+
+.settings-card-header p {
+  margin-top: 4px;
+
+  color: #94a3b8;
+
+  font-size: 12px;
+}
+
+/* =====================================================
+   ICONS
+===================================================== */
+
+.settings-icon {
+  width: 42px;
+  height: 42px;
+
+  min-width: 42px;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 19px;
+}
+
+.profile-icon {
+  background: #eff6ff;
+}
+
+.notification-icon {
+  background: #fff7ed;
+}
+
+.data-icon {
+  background: #f0fdf4;
+}
+
+.security-icon {
+  background: #fef2f2;
+}
+
+/* =====================================================
+   PROFILE SECTION
+===================================================== */
+
+.profile-section {
+  display: flex;
+  align-items: center;
+
+  gap: 25px;
+
+  width: 100%;
+
+  padding-top: 23px;
+
+  box-sizing: border-box;
+}
+
+/* =====================================================
+   PROFILE AVATAR
+===================================================== */
+
+.profile-avatar {
+  width: 76px;
+  height: 76px;
+
+  min-width: 76px;
+
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-size: 28px;
+  font-weight: 500;
+
+  box-shadow: 0 5px 15px rgba(37, 99, 235, 0.18);
+}
+
+/* =====================================================
+   PROFILE INFORMATION
+===================================================== */
+
+.profile-info {
+  flex: 1;
+
+  min-width: 0;
+
+  width: 100%;
+}
+
+/* =====================================================
+   PROFILE EDIT ROW
+===================================================== */
+
+.profile-edit-row {
+  display: flex;
+  align-items: flex-end;
+
+  gap: 12px;
+
+  width: 100%;
+
+  margin-bottom: 18px;
+
+  box-sizing: border-box;
+}
+
+.profile-edit-row:last-child {
+  margin-bottom: 0;
+}
+
+.profile-edit-row .form-group {
+  flex: 1;
+
+  min-width: 0;
+}
+
+/* =====================================================
+   FORM GROUP
+===================================================== */
+
+.form-group {
+  width: 100%;
+}
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #334155;
+
+  font-size: 12px;
+
+  font-weight: 500;
+}
+
+.form-group input {
+  display: block;
+
+  width: 100%;
+  max-width: 100%;
+
+  padding: 11px 13px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #dce3ed;
+
+  border-radius: 8px;
+
+  outline: none;
+
+  color: #334155;
+
+  background: #ffffff;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  transition: 0.2s;
+}
+
+.form-group input:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
+}
+
+/* Disabled email/name */
+
+.form-group input:disabled {
+  background: #f8fafc;
+
+  color: #64748b;
+
+  cursor: not-allowed;
+}
+
+/* =====================================================
+   EDIT BUTTON
+===================================================== */
+
+.edit-button,
+.save-small-button {
+  height: 42px;
+
+  flex-shrink: 0;
+
+  padding: 0 18px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.edit-button {
+  border: 1px solid #dbe3ef;
+
+  background: #ffffff;
+
+  color: #2563eb;
+}
+
+.edit-button:hover {
+  border-color: #2563eb;
+
+  background: #f8fbff;
+}
+
+.save-small-button {
+  border: none;
+
+  background: #2563eb;
+
+  color: white;
+}
+
+.save-small-button:hover {
+  background: #1d4ed8;
+}
+
+/* =====================================================
+   EMAIL CHANGE BOX
+===================================================== */
+
+.email-change-box {
+  margin-top: 22px;
+
+  padding: 22px;
+
+  border-radius: 11px;
+
+  background: #f8fafc;
+
+  border: 1px solid #e2e8f0;
+
+  box-sizing: border-box;
+}
+
+.email-change-header {
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: flex-start;
+
+  margin-bottom: 18px;
+}
+
+.email-change-header h3 {
+  margin: 0;
+
+  color: #17365d;
+
+  font-size: 15px;
+
+  font-weight: 500;
+}
+
+.email-change-header p {
+  margin-top: 5px;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+}
+
+.close-button {
+  border: none;
+
+  background: transparent;
+
+  color: #94a3b8;
+
+  font-size: 24px;
+
+  line-height: 1;
+
+  cursor: pointer;
+}
+
+.close-button:hover {
+  color: #334155;
+}
+
+/* =====================================================
+   SEND CODE BUTTON
+===================================================== */
+
+.send-code-button {
+  margin-top: 12px;
+
+  padding: 11px 20px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.send-code-button:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+}
+
+/* =====================================================
+   VERIFICATION MESSAGE
+===================================================== */
+
+.verification-message {
+  margin-bottom: 17px;
+
+  padding: 11px 14px;
+
+  border-radius: 8px;
+
+  background: #eff6ff;
+
+  color: #64748b;
+
+  font-size: 12px;
+}
+
+.verification-message strong {
+  color: #2563eb;
+}
+
+/* =====================================================
+   RESEND BUTTON
+===================================================== */
+
+.resend-button {
+  margin-left: 10px;
+
+  padding: 10px 15px;
+
+  border: 1px solid #dbe3ef;
+
+  border-radius: 8px;
+
+  background: #ffffff;
+
+  color: #2563eb;
+
+  font-family: inherit;
+
+  font-size: 12px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.resend-button:hover {
+  border-color: #2563eb;
+
+  background: #f8fbff;
+}
+
+/* =====================================================
+   SETTINGS MESSAGE
+===================================================== */
+
+.settings-message {
+  margin-top: 15px;
+
+  padding: 10px 14px;
+
+  border-radius: 8px;
+
+  background: #f0fdf4;
+
+  color: #15803d;
+
+  font-size: 12px;
+}
+
+/* =====================================================
+   NOTIFICATION / DATA OPTIONS
+===================================================== */
+
+.setting-option {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding: 18px 0;
+
+  border-bottom: 1px solid #f0f2f5;
+}
+
+.setting-option:last-child {
+  border-bottom: none;
+
+  padding-bottom: 0;
+}
+
+.setting-option h3 {
+  margin: 0;
+
+  color: #334155;
+
+  font-size: 14px;
+
+  font-weight: 500;
+}
+
+.setting-option p {
+  margin-top: 5px;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+}
+
+/* =====================================================
+   TOGGLE
+===================================================== */
+
+.toggle {
+  width: 46px;
+  height: 25px;
+
+  min-width: 46px;
+
+  padding: 3px;
+
+  border: none;
+
+  border-radius: 20px;
+
+  background: #cbd5e1;
+
+  cursor: pointer;
+
+  transition: 0.25s;
+}
+
+.toggle span {
+  display: block;
+
+  width: 19px;
+  height: 19px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+
+  transition: 0.25s;
+}
+
+.toggle.active {
+  background: #2563eb;
+}
+
+.toggle.active span {
+  transform: translateX(21px);
+}
+
+/* =====================================================
+   SECURITY
+===================================================== */
+
+.security-actions {
+  display: flex;
+
+  gap: 12px;
+
+  padding-top: 20px;
+}
+
+.secondary-button,
+.logout-button {
+  padding: 10px 18px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+
+  font-size: 13px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.secondary-button {
+  border: 1px solid #dce3ed;
+
+  background: #ffffff;
+
+  color: #475569;
+}
+
+.secondary-button:hover {
+  border-color: #2563eb;
+
+  color: #2563eb;
+}
+
+.logout-button {
+  border: 1px solid #fecaca;
+
+  background: #fff5f5;
+
+  color: #dc2626;
+}
+
+.logout-button:hover {
+  background: #fee2e2;
+}
+
+/* =====================================================
+   SAVE CHANGES
+===================================================== */
+
+.settings-footer {
+  display: flex;
+
+  justify-content: flex-end;
+
+  margin-top: 5px;
+}
+
+.save-button {
+  padding: 12px 25px;
+
+  border: none;
+
+  border-radius: 8px;
+
+  background: #2563eb;
+
+  color: white;
+
+  font-family: inherit;
+
+  font-size: 14px;
+
+  cursor: pointer;
+
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.18);
+
+  transition: 0.2s;
+}
+
+.save-button:hover {
+  background: #1d4ed8;
+
+  transform: translateY(-1px);
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media (max-width: 1100px) {
+
+  .settings-main {
+    margin-left: 230px !important;
+
+    width: calc(100% - 230px);
+  }
+
+  .profile-section {
+    gap: 18px;
+  }
+
+}
+
+@media (max-width: 850px) {
+
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-section {
+    align-items: flex-start;
+
+    flex-direction: column;
+  }
+
+  .profile-info {
+    width: 100%;
+  }
+
+}
+
+@media (max-width: 700px) {
+
+  .settings-main {
+    margin-left: 0 !important;
+
+    width: 100%;
+
+    padding: 25px 18px 40px;
+  }
+
+  .settings-header h1 {
+    font-size: 26px;
+  }
+
+  .profile-edit-row {
+    align-items: stretch;
+
+    flex-direction: column;
+  }
+
+  .edit-button,
+  .save-small-button {
+    width: 100%;
+  }
+
+  .setting-option {
+    align-items: flex-start;
+  }
+
+  .security-actions {
+    flex-direction: column;
+  }
+
+  .secondary-button,
+  .logout-button {
+    width: 100%;
+  }
+
+  .settings-footer {
+    justify-content: stretch;
+  }
+
+  .save-button {
+    width: 100%;
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .settings-card {
+    padding: 18px;
+  }
+
+  .settings-card-header {
+    align-items: flex-start;
+  }
+
+  .email-change-box {
+    padding: 16px;
+  }
+
+  .resend-button {
+    margin-left: 0;
+
+    margin-top: 10px;
+  }
+
+}

@@ -1,0 +1,113 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7fc;
+}
+
+
+/* Main screen */
+.login-container {
+
+    height: 100vh;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+}
+
+
+/* White login box */
+.login-card {
+
+    width: 400px;
+
+    background: white;
+
+    padding: 40px;
+
+    border-radius: 15px;
+
+    box-shadow: 0px 8px 25px rgba(0,0,0,0.15);
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+/* Title */
+.login-card h1 {
+
+    color: #2563eb;
+
+    text-align: center;
+
+    margin-bottom: 10px;
+
+}
+
+
+/* Description */
+.login-card p {
+
+    text-align: center;
+
+    color: gray;
+
+    margin-bottom: 30px;
+
+}
+
+
+/* Input boxes */
+.login-card input {
+
+    padding: 12px;
+
+    margin-bottom: 18px;
+
+    border-radius: 8px;
+
+    border: 1px solid #ccc;
+
+    font-size: 16px;
+
+}
+
+
+/* Login button */
+.login-card button {
+
+    padding: 12px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background: #2563eb;
+
+    color: white;
+
+    font-size: 16px;
+
+    cursor: pointer;
+
+}
+
+
+/* Button hover effect */
+.login-card button:hover {
+
+    background: #1d4ed8;
+
+}
