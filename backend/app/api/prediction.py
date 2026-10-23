@@ -49,3 +49,40 @@ def predict_sales_endpoint(payload: SalesPredictionRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while processing sales prediction: {str(e)}"
         )
+
+
+class RevenueForecastRequest(BaseModel):
+    dataset_id: int = Field(..., description="ID of the uploaded dataset in PostgreSQL", ge=1)
+    horizon_days: int = Field(30, description="Forecast horizon in days (7, 30, or 90)")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "dataset_id": 1,
+                "horizon_days": 30
+            }
+        }
+
+
+@router.post(
+    "/forecast/revenue",
+    status_code=status.HTTP_200_OK,
+    summary="Financial Revenue Forecasting",
+    description="Forecast future daily revenue based on actual date and revenue records from an uploaded dataset."
+)
+def forecast_revenue_endpoint(payload: RevenueForecastRequest):
+    try:
+        from app.services.forecasting_service import forecast_revenue_service
+        result = forecast_revenue_service(
+            dataset_id=payload.dataset_id,
+            horizon_days=payload.horizon_days
+        )
+        return result
+    except HTTPException as http_ex:
+        raise http_ex
+    except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred while generating revenue forecast: {str(e)}"
+        )
+

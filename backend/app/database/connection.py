@@ -1,12 +1,16 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-DATABASE_URL = "postgresql://postgres:mokshitha007@localhost:5432/nexus_ai"
+# Supabase PostgreSQL database URL with URL-encoded password (Mokshitha@007 -> Mokshitha%40007)
+DEFAULT_DB_URL = "postgresql://postgres:Mokshitha%40007@db.cqvgsibjkkgympkchtko.supabase.co:5432/postgres"
 
-engine = create_engine(DATABASE_URL)
+DATABASE_URL = os.getenv("DATABASE_URL", DEFAULT_DB_URL)
+
+engine = create_engine(DATABASE_URL, pool_pre_ping=True, pool_recycle=300)
 
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine
-)
+)

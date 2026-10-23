@@ -14,7 +14,8 @@ from app.services.etl.cleaner import (
     remove_duplicates,
     convert_numeric_columns,
     handle_missing_values,
-    calculate_profit
+    calculate_profit,
+    normalize_currencies
 )
 
 from app.services.etl.validator import (
@@ -22,7 +23,8 @@ from app.services.etl.validator import (
     validate_dates,
     validate_finance_data,
     remove_invalid_finance_rows,
-    remove_invalid_date_rows
+    remove_invalid_date_rows,
+    remove_invalid_currency_rows
 )
 
 from app.services.etl.loader import load_finance_records
@@ -178,12 +180,20 @@ async def upload_file(file: UploadFile = File(...)):
             )
 
             # --------------------------------------------------
-            # 10. Total invalid rows
+            # 10. Currency validation
+            # --------------------------------------------------
+            clean_df, invalid_currency_rows = remove_invalid_currency_rows(
+                clean_df
+            )
+
+            # --------------------------------------------------
+            # 11. Total invalid rows
             # --------------------------------------------------
 
             total_invalid_rows = (
                 len(invalid_finance_rows)
                 + len(invalid_date_rows)
+                + len(invalid_currency_rows)
             )
 
             print("\nValidation summary:")
@@ -196,6 +206,10 @@ async def upload_file(file: UploadFile = File(...)):
                 len(invalid_date_rows)
             )
             print(
+                "Invalid currency rows:",
+                len(invalid_currency_rows)
+            )
+            print(
                 "Total invalid rows:",
                 total_invalid_rows
             )
@@ -205,15 +219,15 @@ async def upload_file(file: UploadFile = File(...)):
             )
 
             # --------------------------------------------------
-            # 11. Calculate profit
+            # 12. Currency normalization to Base Currency (USD)
             # --------------------------------------------------
 
-            clean_df = calculate_profit(clean_df)
+            clean_df = normalize_currencies(clean_df)
 
-            print("\nProfit calculation:")
+            print("\nNormalized financial records (USD base):")
             print(
                 clean_df[
-                    ["revenue", "expense", "profit"]
+                    ["date", "revenue", "expense", "profit", "currency", "original_revenue", "exchange_rate"]
                 ]
             )
 

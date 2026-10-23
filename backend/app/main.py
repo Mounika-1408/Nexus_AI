@@ -1,3 +1,9 @@
+import os
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -13,6 +19,7 @@ from app.models.metadata import Metadata
 from app.api.upload import router as upload_router
 from app.api.datasets import router as datasets_router
 from app.api.prediction import router as prediction_router
+from app.api.chat import router as chat_router
 
 
 app = FastAPI(
@@ -52,6 +59,8 @@ Base.metadata.create_all(bind=engine)
 app.include_router(upload_router)
 app.include_router(datasets_router)
 app.include_router(prediction_router)
+app.include_router(chat_router)
+
 
 
 

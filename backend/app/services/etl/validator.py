@@ -115,3 +115,52 @@ def remove_invalid_date_rows(df):
     )
 
     return clean_df, invalid_rows
+
+
+# --------------------------------------------------
+# CURRENCY VALIDATION
+# --------------------------------------------------
+
+def validate_currency_data(df):
+    """
+    Validate that transactions specify a recognized and supported currency code.
+    Identifies rows with missing, null, or unsupported currencies.
+    """
+    from app.services.currency_service import is_supported_currency
+
+    if "currency" not in df.columns:
+        return [{"type": "missing_currency_column", "count": len(df), "rows": df.index.tolist()}]
+
+    errors = []
+    unsupported_mask = ~df["currency"].apply(is_supported_currency)
+    unsupported_rows = df[unsupported_mask]
+
+    if not unsupported_rows.empty:
+        errors.append({
+            "type": "invalid_or_unsupported_currency",
+            "count": len(unsupported_rows),
+            "rows": unsupported_rows.index.tolist(),
+            "values": unsupported_rows["currency"].tolist()
+        })
+
+    return errors
+
+
+def remove_invalid_currency_rows(df):
+    """
+    Exclude records with missing or unsupported currencies so financial aggregation
+    is strictly calculated using verified exchange rates.
+    """
+    from app.services.currency_service import is_supported_currency
+
+    if "currency" not in df.columns:
+        return df.iloc[0:0].copy(), df.copy()
+
+    valid_mask = df["currency"].apply(is_supported_currency)
+    invalid_rows = df[~valid_mask].copy()
+    clean_df = df[valid_mask].copy()
+
+    # Standardize currency column to uppercase stripped string
+    clean_df["currency"] = clean_df["currency"].astype(str).str.strip().str.upper()
+
+    return clean_df, invalid_rows

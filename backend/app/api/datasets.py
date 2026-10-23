@@ -1,3 +1,4 @@
+import os
 from fastapi import APIRouter, HTTPException
 from sqlalchemy.orm import Session
 
@@ -79,7 +80,11 @@ def get_dataset_records(dataset_id: int):
                 "revenue": record.revenue,
                 "expenses": record.expenses,
                 "profit": record.profit,
-                "category": record.category
+                "category": record.category,
+                "currency": record.currency or "USD",
+                "original_revenue": record.original_revenue if record.original_revenue is not None else record.revenue,
+                "original_expenses": record.original_expenses if record.original_expenses is not None else record.expenses,
+                "exchange_rate": record.exchange_rate if record.exchange_rate is not None else 1.0,
             }
             for record in records
         ]
@@ -191,13 +196,40 @@ def get_dataset_summary(dataset_id: int):
             .first()
         )
 
+        # Detect currency from the uploaded file if available
+        currency = None
+        if dataset.file_path and os.path.exists(dataset.file_path):
+            try:
+                import pandas as pd
+                ext = os.path.splitext(dataset.file_path)[1].lower()
+                if ext == ".csv":
+                    df_sample = pd.read_csv(dataset.file_path, nrows=100)
+                elif ext in [".xlsx", ".xls"]:
+                    df_sample = pd.read_excel(dataset.file_path, nrows=100)
+                else:
+                    df_sample = None
+
+                if df_sample is not None and "currency" in df_sample.columns:
+                    mode_c = df_sample["currency"].dropna().astype(str).str.strip().str.upper().mode()
+                    if not mode_c.empty:
+                        currency = mode_c[0]
+            except Exception:
+                currency = None
+
+        from app.services.currency_service import BASE_CURRENCY
+
         return {
             "dataset_id": dataset_id,
             "file_name": dataset.file_name,
             "records": len(records),
+            "total_records": len(records),
             "total_revenue": round(total_revenue, 2),
             "total_expenses": round(total_expenses, 2),
             "total_profit": round(total_profit, 2),
+            "currency": BASE_CURRENCY,
+            "base_currency": BASE_CURRENCY,
+            "raw_file_currency": currency,
+            "is_normalized": True,
             "data_quality_score": (
                 metadata.data_quality_score
                 if metadata
@@ -208,3 +240,13 @@ def get_dataset_summary(dataset_id: int):
 
     finally:
         db.close()
+
+
+# --------------------------------------------------
+# REPROCESS DATASET (IDEMPOTENT & MULTI-CURRENCY AWARE)
+# --------------------------------------------------
+
+@router.post("/{dataset_id}/reprocess")
+def reprocess_dataset_endpoint(dataset_id: int):
+    from app.services.etl.reprocessor import reprocess_dataset_service
+    return reprocess_dataset_service(dataset_id)

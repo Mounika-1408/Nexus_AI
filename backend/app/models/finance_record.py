@@ -22,3 +22,11 @@ class FinanceRecord(Base):
     profit = Column(Float, nullable=True)
 
     category = Column(String(100), nullable=True)
+
+    currency = Column(String(10), nullable=True)
+
+    original_revenue = Column(Float, nullable=True)
+
+    original_expenses = Column(Float, nullable=True)
+
+    exchange_rate = Column(Float, nullable=True, default=1.0)
