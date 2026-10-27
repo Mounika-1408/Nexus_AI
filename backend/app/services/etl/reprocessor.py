@@ -10,6 +10,7 @@ from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database.connection import SessionLocal
+from app.models.company import Company
 from app.models.dataset import Dataset
 from app.models.metadata import Metadata
 from app.services.etl.reader import read_csv, read_excel
@@ -22,6 +23,7 @@ from app.services.etl.cleaner import (
 )
 from app.services.etl.validator import (
     validate_finance_schema,
+    standardize_finance_dataframe,
     remove_invalid_finance_rows,
     remove_invalid_date_rows,
     remove_invalid_currency_rows
@@ -64,6 +66,14 @@ def reprocess_dataset_service(dataset_id: int) -> Dict[str, Any]:
                 detail=f"Unsupported file format: {file_ext}"
             )
 
+        if df.empty:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="The source file contains no data rows."
+            )
+
+        # Standardize headers, map synonyms/aliases, and populate safe defaults
+        df = standardize_finance_dataframe(df)
         original_rows = len(df)
 
         # 2. Validate schema
@@ -71,7 +81,7 @@ def reprocess_dataset_service(dataset_id: int) -> Dict[str, Any]:
         if missing_cols:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=f"Source file is missing required columns: {missing_cols}"
+                detail=f"Source file is missing required columns: {', '.join(missing_cols)}. Required: date, revenue (or sales)."
             )
 
         # 3. Clean Categories & Duplicates
@@ -133,6 +143,7 @@ def reprocess_dataset_service(dataset_id: int) -> Dict[str, Any]:
             )
             db.add(metadata_obj)
 
+        dataset.status = "completed"
         db.commit()
 
         # 10. Compute Summary Metrics in Base Currency

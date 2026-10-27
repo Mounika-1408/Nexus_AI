@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-import { uploadDataset, fetchDatasets } from "../services/api";
+import { uploadDataset, fetchDatasets, reprocessDataset } from "../services/api";
 
 import "../styles/Upload.css";
 
 function Upload() {
   const [file, setFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [reprocessingId, setReprocessingId] = useState(null);
   const [uploadSuccess, setUploadSuccess] = useState(null);
   const [uploadError, setUploadError] = useState(null);
 
@@ -51,9 +52,11 @@ function Upload() {
 
       setUploadSuccess({
         dataset_id: result.dataset_id,
-        file_name: result.file_name || file.name,
+        file_name: result.filename || file.name,
         message: result.message || "File uploaded and processed successfully!",
         status: result.status || "Completed",
+        records: result.records_loaded || result.clean_rows,
+        quality: result.data_quality_score,
       });
 
       setFile(null);
@@ -63,6 +66,30 @@ function Upload() {
       setUploadError(err.message || "An error occurred during dataset upload.");
     } finally {
       setIsUploading(false);
+    }
+  }
+
+  async function handleReprocess(datasetId) {
+    try {
+      setReprocessingId(datasetId);
+      setUploadError(null);
+      setUploadSuccess(null);
+
+      const result = await reprocessDataset(datasetId);
+
+      setUploadSuccess({
+        dataset_id: datasetId,
+        file_name: result.file_name || `Dataset #${datasetId}`,
+        message: `Dataset #${datasetId} successfully reprocessed! Loaded ${result.records_loaded} records.`,
+        status: "Completed",
+        records: result.records_loaded,
+      });
+
+      await loadUploadHistory();
+    } catch (err) {
+      setUploadError(`Failed to reprocess dataset #${datasetId}: ${err.message}`);
+    } finally {
+      setReprocessingId(null);
     }
   }
 
@@ -81,21 +108,33 @@ function Upload() {
             </p>
           </div>
 
+          {/* Dataset Format Guidelines */}
+          <div style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: "10px", padding: "14px 18px", marginBottom: "20px", fontSize: "0.875rem", color: "#475569" }}>
+            <div style={{ fontWeight: "600", color: "#1e293b", marginBottom: "4px" }}>📋 Supported File Formats & Columns</div>
+            <div>
+              NexusAI accepts <strong>.csv</strong>, <strong>.xlsx</strong>, and <strong>.xls</strong> files.
+              Essential required columns: <code>date</code> and <code>revenue</code> (or <code>sales</code>).
+              Optional columns: <code>expenses</code> / <code>expense</code> / <code>cost</code>, <code>category</code>, <code>currency</code> (USD, EUR, GBP, INR), and <code>payment_status</code>.
+            </div>
+          </div>
+
           {/* Upload Status Banners */}
           {uploadSuccess && (
             <div style={{ padding: "16px", background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", borderRadius: "10px", marginBottom: "20px" }}>
-              <h4 style={{ margin: "0 0 6px 0", fontSize: "1rem" }}>✅ Upload Successful!</h4>
+              <h4 style={{ margin: "0 0 6px 0", fontSize: "1rem" }}>✅ Upload & Processing Successful!</h4>
               <p style={{ margin: 0, fontSize: "0.9rem" }}>
-                Dataset <strong>#{uploadSuccess.dataset_id}</strong> (<em>{uploadSuccess.file_name}</em>) uploaded successfully.
+                Dataset <strong>#{uploadSuccess.dataset_id}</strong> (<em>{uploadSuccess.file_name}</em>) processed successfully.
                 <br />
-                ETL Processing Status: <strong>{uploadSuccess.status}</strong>
+                ETL Status: <strong>{uploadSuccess.status}</strong>
+                {uploadSuccess.records !== undefined && <> &bull; Records Ingested: <strong>{uploadSuccess.records}</strong></>}
+                {uploadSuccess.quality !== undefined && <> &bull; Data Quality Score: <strong>{uploadSuccess.quality}%</strong></>}
               </p>
             </div>
           )}
 
           {uploadError && (
             <div style={{ padding: "16px", background: "#fef2f2", border: "1px solid #fecaca", color: "#b91c1c", borderRadius: "10px", marginBottom: "20px" }}>
-              <h4 style={{ margin: "0 0 6px 0", fontSize: "1rem" }}>⚠️ Upload Failed</h4>
+              <h4 style={{ margin: "0 0 6px 0", fontSize: "1rem" }}>⚠️ Upload Failed (400 Bad Request)</h4>
               <p style={{ margin: 0, fontSize: "0.9rem" }}>{uploadError}</p>
             </div>
           )}
@@ -174,25 +213,53 @@ function Upload() {
                     <th style={{ padding: "10px" }}>File Name</th>
                     <th style={{ padding: "10px" }}>Type</th>
                     <th style={{ padding: "10px" }}>ETL Status</th>
+                    <th style={{ padding: "10px", textAlign: "right" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {recentDatasets.map((ds) => (
-                    <tr key={ds.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
-                      <td style={{ padding: "12px 10px", fontWeight: "600" }}>#{ds.id}</td>
-                      <td style={{ padding: "12px 10px" }}>{ds.file_name}</td>
-                      <td style={{ padding: "12px 10px" }}>
-                        <span style={{ padding: "4px 8px", background: "#f1f5f9", borderRadius: "4px", fontSize: "0.75rem", fontWeight: "600" }}>
-                          {ds.file_type.toUpperCase()}
-                        </span>
-                      </td>
-                      <td style={{ padding: "12px 10px" }}>
-                        <span style={{ color: "#16a34a", fontWeight: "600", fontSize: "0.875rem" }}>
-                          ● {ds.status || "Completed"}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
+                  {recentDatasets.map((ds) => {
+                    const isCompleted = ds.status === "completed";
+                    const isFailed = ds.status === "failed";
+                    const statusColor = isCompleted ? "#16a34a" : isFailed ? "#dc2626" : "#d97706";
+                    const statusLabel = isCompleted ? "Completed" : isFailed ? "Failed" : (ds.status || "Processing");
+
+                    return (
+                      <tr key={ds.id} style={{ borderBottom: "1px solid #f1f5f9" }}>
+                        <td style={{ padding: "12px 10px", fontWeight: "600" }}>#{ds.id}</td>
+                        <td style={{ padding: "12px 10px" }}>{ds.file_name}</td>
+                        <td style={{ padding: "12px 10px" }}>
+                          <span style={{ padding: "4px 8px", background: "#f1f5f9", borderRadius: "4px", fontSize: "0.75rem", fontWeight: "600" }}>
+                            {ds.file_type.toUpperCase()}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 10px" }}>
+                          <span style={{ color: statusColor, fontWeight: "600", fontSize: "0.875rem" }}>
+                            ● {statusLabel}
+                          </span>
+                        </td>
+                        <td style={{ padding: "12px 10px", textAlign: "right" }}>
+                          {isFailed && (
+                            <button
+                              onClick={() => handleReprocess(ds.id)}
+                              disabled={reprocessingId === ds.id}
+                              style={{
+                                padding: "4px 10px",
+                                background: reprocessingId === ds.id ? "#94a3b8" : "#2563eb",
+                                color: "#ffffff",
+                                border: "none",
+                                borderRadius: "6px",
+                                fontSize: "0.75rem",
+                                fontWeight: "600",
+                                cursor: reprocessingId === ds.id ? "not-allowed" : "pointer"
+                              }}
+                            >
+                              {reprocessingId === ds.id ? "Reprocessing..." : "⚡ Reprocess"}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             )}

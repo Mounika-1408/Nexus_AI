@@ -1,10 +1,19 @@
 import React, { useState } from "react";
 import Sidebar from "../components/Sidebar";
+import { logoutUser } from "../services/api";
 import "../styles/Settings.css";
 
 function Settings() {
-  const [name, setName] = useState("Durga Bhavani");
-  const [email, setEmail] = useState("admin@nexusai.com");
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("nexusaiUser")) || {};
+    } catch {
+      return {};
+    }
+  })();
+
+  const [name, setName] = useState(storedUser.name || "Administrator");
+  const [email, setEmail] = useState(storedUser.email || "admin@nexusai.com");
 
   const [editingName, setEditingName] = useState(false);
 
@@ -46,115 +55,13 @@ function Settings() {
       setMessage("Please enter a new email address.");
       return;
     }
-
-    try {
-      /*
-        Backend API will send the actual code.
-
-        Example:
-        POST /api/settings/request-email-change
-
-        Body:
-        {
-          "newEmail": "newmail@gmail.com"
-        }
-      */
-
-      const response = await fetch(
-        "http://localhost:5000/api/settings/request-email-change",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            newEmail: newEmail,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setMessage(data.message || "Unable to send verification code.");
-        return;
-      }
-
-      setCodeSent(true);
-      setMessage("Verification code sent to your new email.");
-    } catch (error) {
-      console.error(error);
-
-      setMessage(
-        "Email service is not connected yet. Backend integration is required."
-      );
-    }
+    setMessage("Email address changes require administrator review in this release.");
+    setTimeout(() => setMessage(""), 3000);
   };
 
-  /* =========================
-     VERIFY EMAIL CODE
-  ========================= */
-
   const verifyEmail = async () => {
-    if (!verificationCode.trim()) {
-      setMessage("Please enter the verification code.");
-      return;
-    }
-
-    try {
-      /*
-        Backend API will verify the code.
-
-        Example:
-        POST /api/settings/verify-email-change
-
-        Body:
-        {
-          "newEmail": "newmail@gmail.com",
-          "code": "123456"
-        }
-      */
-
-      const response = await fetch(
-        "http://localhost:5000/api/settings/verify-email-change",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            newEmail: newEmail,
-            code: verificationCode,
-          }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setMessage(data.message || "Invalid verification code.");
-        return;
-      }
-
-      setEmail(newEmail);
-
-      setChangingEmail(false);
-      setCodeSent(false);
-      setNewEmail("");
-      setVerificationCode("");
-
-      setMessage("Email address changed successfully.");
-
-      setTimeout(() => {
-        setMessage("");
-      }, 3000);
-    } catch (error) {
-      console.error(error);
-
-      setMessage(
-        "Email verification service is not connected yet."
-      );
-    }
+    setMessage("Email address changes require administrator review in this release.");
+    setTimeout(() => setMessage(""), 3000);
   };
 
   /* =========================
@@ -185,8 +92,7 @@ function Settings() {
   ========================= */
 
   const handleLogout = () => {
-    localStorage.removeItem("nexusaiLoggedInUser");
-    window.location.href = "/";
+    logoutUser();
   };
 
   return (

@@ -22,9 +22,10 @@ function AIChat() {
 
   const suggestions = [
     "What is the total revenue?",
-    "What is the total profit?",
     "Which category has the highest revenue?",
-    "What are the total expenses?",
+    "Which category has the lowest revenue?",
+    "What is the average profit?",
+    "Summarize financial performance",
     "How many records are available?",
   ];
 
@@ -39,7 +40,11 @@ function AIChat() {
   async function loadDatasetList() {
     try {
       const data = await fetchDatasets();
-      setDatasets(data);
+      const list = Array.isArray(data) ? data : [];
+      setDatasets(list);
+      if (list.length > 0 && !selectedDatasetId) {
+        setSelectedDatasetId(list[0].id);
+      }
     } catch (err) {
       console.error("Failed to load dataset list for chat:", err);
     }
@@ -141,7 +146,7 @@ function AIChat() {
                 onChange={(e) => setSelectedDatasetId(e.target.value)}
                 style={{ padding: "4px 10px", borderRadius: "6px", border: "1px solid #cbd5e1", background: "#ffffff", marginLeft: "8px", fontSize: "0.875rem" }}
               >
-                <option value="">All Uploaded Data</option>
+                <option value="">All Uploaded Datasets (Global Aggregation)</option>
                 {datasets.map((d) => (
                   <option key={d.id} value={d.id}>
                     Dataset #{d.id} - {d.file_name}

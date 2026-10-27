@@ -1,47 +1,36 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/api";
 import "../styles/login.css";
 
 function Login() {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(() => localStorage.getItem("nexusaiEmail") || "");
   const [password, setPassword] = useState("");
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(() => Boolean(localStorage.getItem("nexusaiEmail")));
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
-
     setError("");
+    setLoading(true);
 
-    // Get the account created on the Signup page
-    const savedUser = localStorage.getItem("nexusaiUser");
+    try {
+      await loginUser({ email, password });
 
-    if (!savedUser) {
-      setError("No account found. Please create an account first.");
-      return;
-    }
-
-    const user = JSON.parse(savedUser);
-
-    // Check email and password
-    if (email === user.email && password === user.password) {
-      
-      // Remember user if checkbox is selected
       if (remember) {
         localStorage.setItem("nexusaiEmail", email);
       } else {
         localStorage.removeItem("nexusaiEmail");
       }
 
-      // Save login status
-      localStorage.setItem("nexusaiLoggedIn", "true");
-
-      // Go to Dashboard
       navigate("/dashboard");
-    } else {
-      setError("Invalid email or password.");
+    } catch (err) {
+      setError(err.message || "Failed to sign in. Please verify your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -51,21 +40,18 @@ function Login() {
 
         <div className="logo-section">
           <div className="logo-icon">✦</div>
-
           <h1>
             Nexus<span>AI</span>
           </h1>
         </div>
 
         <h2>Welcome back</h2>
-
         <p className="subtitle">
           Sign in to continue to your analytics workspace
         </p>
 
         <form onSubmit={handleLogin}>
           <label htmlFor="email">Email address</label>
-
           <input
             id="email"
             type="email"
@@ -79,7 +65,6 @@ function Login() {
           />
 
           <label htmlFor="password">Password</label>
-
           <input
             id="password"
             type="password"
@@ -102,15 +87,19 @@ function Login() {
               <span>Remember me</span>
             </label>
 
-            <button type="button" className="forgot">
+            <button
+              type="button"
+              className="forgot"
+              onClick={() => alert("Please contact your administrator to reset your password.")}
+            >
               Forgot password?
             </button>
           </div>
 
-          {error && <div className="login-error">{error}</div>}
+          {error && <div className="login-error" style={{ color: "#ef4444", marginTop: "8px", fontSize: "0.9rem" }}>{error}</div>}
 
-          <button type="submit" className="signin-button">
-            Sign in <span>→</span>
+          <button type="submit" className="signin-button" disabled={loading}>
+            {loading ? "Signing in..." : <>Sign in <span>→</span></>}
           </button>
         </form>
 
@@ -120,14 +109,17 @@ function Login() {
           <span></span>
         </div>
 
-        <button type="button" className="google-button">
+        <button
+          type="button"
+          className="google-button"
+          onClick={() => alert("Enterprise Google SSO is available for institutional deployments.")}
+        >
           <strong>G</strong>
           <span>Continue with Google</span>
         </button>
 
         <p className="create-account">
-          Don't have an account?
-
+          Don't have an account?{" "}
           <button
             type="button"
             onClick={() => navigate("/signup")}

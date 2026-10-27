@@ -1,4 +1,4 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -9,22 +9,105 @@ import AIChat from "./pages/AIChat";
 import Prediction from "./pages/Prediction";
 import VoiceAssistant from "./pages/VoiceAssistant";
 import Settings from "./pages/Settings";
+
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("nexusaiToken");
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+}
+
+function PublicRoute({ children }) {
+  const token = localStorage.getItem("nexusaiToken");
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
+  return children;
+}
+
 function App() {
   return (
     <Routes>
 
-      {/* Authentication */}
-      <Route path="/" element={<Login />} />
-      <Route path="/signup" element={<Signup />} />
+      {/* Public Authentication Routes */}
+      <Route
+        path="/"
+        element={
+          <PublicRoute>
+            <Login />
+          </PublicRoute>
+        }
+      />
+      <Route
+        path="/signup"
+        element={
+          <PublicRoute>
+            <Signup />
+          </PublicRoute>
+        }
+      />
 
-      {/* Main Application */}
-      <Route path="/dashboard" element={<Dashboard />} />
-      <Route path="/upload" element={<Upload />} />
-      <Route path="/analytics" element={<Analytics />} />
-      <Route path="/chat" element={<AIChat />} />
-      <Route path="/prediction" element={<Prediction />} />
-      <Route path="/voice" element={<VoiceAssistant />} />
-      <Route path="/settings" element={<Settings />} />
+      {/* Protected Application Routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/upload"
+        element={
+          <ProtectedRoute>
+            <Upload />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/analytics"
+        element={
+          <ProtectedRoute>
+            <Analytics />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <AIChat />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/prediction"
+        element={
+          <ProtectedRoute>
+            <Prediction />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/voice"
+        element={
+          <ProtectedRoute>
+            <VoiceAssistant />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <Settings />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Catch-all redirect */}
+      <Route path="*" element={<Navigate to="/" replace />} />
 
     </Routes>
   );

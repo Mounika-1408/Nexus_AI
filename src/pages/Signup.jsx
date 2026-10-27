@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "../styles/signup.css";
+import { registerUser } from "../services/api";
+import "../styles/Signup.css";
 
 function Signup() {
   const navigate = useNavigate();
@@ -10,10 +11,10 @@ function Signup() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  const handleSignup = (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
-
     setError("");
 
     if (password.length < 6) {
@@ -26,54 +27,43 @@ function Signup() {
       return;
     }
 
-    const user = {
-      name: name,
-      email: email,
-      password: password,
-    };
+    setLoading(true);
+    try {
+      await registerUser({
+        name: name.trim(),
+        email: email.trim(),
+        password
+      });
 
-    localStorage.setItem(
-      "nexusaiUser",
-      JSON.stringify(user)
-    );
-
-    alert("Account created successfully!");
-
-    navigate("/");
+      navigate("/dashboard");
+    } catch (err) {
+      setError(err.message || "Failed to create account. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div className="signup-page">
-
       <div className="signup-container">
 
         {/* Logo */}
         <div className="signup-logo-section">
-
-          <div className="signup-logo-icon">
-            ✦
-          </div>
-
+          <div className="signup-logo-icon">✦</div>
           <h1>
             Nexus<span>AI</span>
           </h1>
-
         </div>
 
         {/* Heading */}
         <h2>Create your account</h2>
-
         <p className="signup-subtitle">
           Get started with your AI-powered analytics workspace
         </p>
 
         {/* Form */}
         <form onSubmit={handleSignup}>
-
-          <label htmlFor="name">
-            Full name
-          </label>
-
+          <label htmlFor="name">Full name</label>
           <input
             id="name"
             type="text"
@@ -86,10 +76,7 @@ function Signup() {
             required
           />
 
-          <label htmlFor="signup-email">
-            Email address
-          </label>
-
+          <label htmlFor="signup-email">Email address</label>
           <input
             id="signup-email"
             type="email"
@@ -102,10 +89,7 @@ function Signup() {
             required
           />
 
-          <label htmlFor="signup-password">
-            Password
-          </label>
-
+          <label htmlFor="signup-password">Password</label>
           <input
             id="signup-password"
             type="password"
@@ -118,10 +102,7 @@ function Signup() {
             required
           />
 
-          <label htmlFor="confirm-password">
-            Confirm password
-          </label>
-
+          <label htmlFor="confirm-password">Confirm password</label>
           <input
             id="confirm-password"
             type="password"
@@ -135,7 +116,7 @@ function Signup() {
           />
 
           {error && (
-            <div className="signup-error">
+            <div className="signup-error" style={{ color: "#ef4444", marginTop: "8px", fontSize: "0.9rem" }}>
               {error}
             </div>
           )}
@@ -143,15 +124,14 @@ function Signup() {
           <button
             type="submit"
             className="signup-button"
+            disabled={loading}
           >
-            Create account <span>→</span>
+            {loading ? "Creating account..." : <>Create account <span>→</span></>}
           </button>
-
         </form>
 
         <p className="already-account">
-          Already have an account?
-
+          Already have an account?{" "}
           <button
             type="button"
             onClick={() => navigate("/")}
@@ -165,7 +145,6 @@ function Signup() {
         </p>
 
       </div>
-
     </div>
   );
 }

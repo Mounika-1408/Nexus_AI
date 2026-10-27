@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any
 from fastapi import APIRouter, HTTPException, status
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from sqlalchemy.orm import Session
 
 from app.database.connection import SessionLocal
@@ -12,22 +12,25 @@ router = APIRouter(
 )
 
 class ChatRequest(BaseModel):
-    message: str = Field(..., description="Natural language question about business/financial data", example="What is the total revenue?")
-    dataset_id: Optional[int] = Field(None, description="Optional dataset ID to filter queries", example=1)
-
-    class Config:
-        json_schema_extra = {
+    model_config = ConfigDict(
+        json_schema_extra={
             "example": {
                 "message": "What is the total revenue?",
                 "dataset_id": 1
             }
         }
+    )
+
+    message: str = Field(..., description="Natural language question about business/financial data")
+    dataset_id: Optional[int] = Field(None, description="Optional dataset ID to filter queries")
 
 class ChatResponse(BaseModel):
     question: str
     sql: str
     result: List[Dict[str, Any]]
     answer: str
+    engine: Optional[str] = "rule_engine"
+    explanation: Optional[str] = None
 
 @router.post(
     "/chat",
@@ -65,7 +68,7 @@ def chat_endpoint(payload: ChatRequest):
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"An unexpected error occurred processing your query: {str(e)}"
+            detail="An unexpected error occurred processing your query."
         )
     finally:
         db.close()

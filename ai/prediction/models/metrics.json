@@ -1,0 +1,73 @@
+{
+  "model_name": "Gradient Boosting Regressor",
+  "test_metrics": {
+    "r2": 0.9587,
+    "mae": 0.8411,
+    "rmse": 1.1293,
+    "mape": 7.22
+  },
+  "cv_metrics": {
+    "cv_mean_r2": 0.9239,
+    "cv_std_r2": 0.0194
+  },
+  "feature_ranges": {
+    "TV": {
+      "min": 0.7,
+      "max": 296.4,
+      "mean": 147.04,
+      "std": 85.85
+    },
+    "Radio": {
+      "min": 0.0,
+      "max": 49.6,
+      "mean": 23.26,
+      "std": 14.85
+    },
+    "Newspaper": {
+      "min": 0.3,
+      "max": 114.0,
+      "mean": 30.55,
+      "std": 21.78
+    }
+  },
+  "candidate_models": {
+    "Linear Regression": {
+      "test_r2": 0.9059,
+      "test_mae": 1.2748,
+      "test_rmse": 1.7052,
+      "cv_r2": 0.8793
+    },
+    "Ridge Regression": {
+      "test_r2": 0.9057,
+      "test_mae": 1.2734,
+      "test_rmse": 1.7074,
+      "cv_r2": 0.8796
+    },
+    "Random Forest Regressor": {
+      "test_r2": 0.9535,
+      "test_mae": 0.9171,
+      "test_rmse": 1.1987,
+      "cv_r2": 0.9323
+    },
+    "Gradient Boosting Regressor": {
+      "test_r2": 0.9587,
+      "test_mae": 0.8411,
+      "test_rmse": 1.1293,
+      "cv_r2": 0.9239
+    }
+  },
+  "dataset_info": {
+    "total_samples": 200,
+    "train_samples": 160,
+    "test_samples": 40,
+    "features": [
+      "TV",
+      "Radio",
+      "Newspaper"
+    ],
+    "target": "Sales",
+    "units": "Expenditure: thousands of USD ($k), Sales: thousands of units"
+  },
+  "sklearn_version": "1.9.1",
+  "random_state": 42
+}

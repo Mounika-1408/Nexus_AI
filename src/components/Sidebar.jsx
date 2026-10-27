@@ -10,6 +10,7 @@ import {
 } from "react-icons/fa";
 
 import { NavLink, useNavigate } from "react-router-dom";
+import { logoutUser } from "../services/api";
 import "../styles/Sidebar.css";
 
 function Sidebar() {
@@ -107,7 +108,7 @@ function Sidebar() {
       {/* Logout */}
       <div
         className="logout"
-        onClick={() => navigate("/")}
+        onClick={logoutUser}
       >
         <FaSignOutAlt className="icon" />
         <span>Logout</span>

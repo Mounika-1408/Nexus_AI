@@ -1,45 +1,55 @@
 import pandas as pd
-def clean_categories(df):
-    df["category"] = (
-        df["category"]
-        .astype(str)
-        .str.strip()
-        .str.lower()
-    )
 
+
+def clean_categories(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Standardize categories to lowercase and handle null/empty categories gracefully (D2 fix).
+    """
+    if "category" in df.columns:
+        df["category"] = df["category"].fillna("uncategorized")
+        df["category"] = df["category"].astype(str).str.strip().str.lower()
+        df.loc[df["category"].isin(["nan", "none", "", "null"]), "category"] = "uncategorized"
     return df
-def remove_duplicates(df):
+
+
+def remove_duplicates(df: pd.DataFrame):
     before = len(df)
-
     df = df.drop_duplicates()
-
     removed = before - len(df)
-
     return df, removed
-def handle_missing_values(df):
-    df["revenue"] = df["revenue"].fillna(0)
-    df["expense"] = df["expense"].fillna(0)
 
+
+def convert_numeric_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Coerce non-numeric revenue and expense to NaN so they can be flagged and dropped by validator (D2 fix).
+    Cleans currency symbols, thousand-separators, and stray characters cleanly.
+    """
+    for col in ["revenue", "expense"]:
+        if col in df.columns:
+            if not pd.api.types.is_numeric_dtype(df[col]):
+                # Remove currency symbols and thousand separators, retaining digits, decimal, and minus
+                cleaned = df[col].astype(str).str.replace(r'[^0-9.-]', '', regex=True)
+                cleaned = cleaned.replace(['', 'nan', 'none', 'null'], float('nan'))
+                df[col] = pd.to_numeric(cleaned, errors="coerce")
+            else:
+                df[col] = pd.to_numeric(df[col], errors="coerce")
     return df
-def convert_numeric_columns(df):
-    df["revenue"] = pd.to_numeric(
-        df["revenue"],
-        errors="coerce"
-    )
 
-    df["expense"] = pd.to_numeric(
-        df["expense"],
-        errors="coerce"
-    )
 
+def handle_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Do not silently convert non-numeric revenue or expense to 0 (D2 fix).
+    Invalid non-numeric values remain NaN to be filtered during financial validation.
+    """
     return df
-def calculate_profit(df):
+
+
+def calculate_profit(df: pd.DataFrame) -> pd.DataFrame:
     df["profit"] = df["revenue"] - df["expense"]
-
     return df
 
 
-def normalize_currencies(df):
+def normalize_currencies(df: pd.DataFrame) -> pd.DataFrame:
     """
     Normalizes multi-currency transaction revenue and expenses to Base Currency (USD).
     Preserves original nominal revenue, expense, and currency code in:

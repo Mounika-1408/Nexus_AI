@@ -33,7 +33,6 @@ def get_datasets():
                 "company_id": dataset.company_id,
                 "file_name": dataset.file_name,
                 "file_type": dataset.file_type,
-                "file_path": dataset.file_path,
                 "status": dataset.status
             }
             for dataset in datasets

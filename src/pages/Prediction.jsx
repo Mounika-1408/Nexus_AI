@@ -33,6 +33,7 @@ import {
   predictSales,
   forecastRevenue,
   fetchDatasets,
+  fetchModelInfo,
 } from "../services/api";
 
 import "../styles/Prediction.css";
@@ -110,17 +111,21 @@ function Prediction() {
   /* =========================================================
      TAB 2 STATE: ADVERTISING-BASED SALES PREDICTION (PRESERVED)
   ========================================================= */
-  const [tv, setTv] = useState("230.1");
-  const [radio, setRadio] = useState("37.8");
-  const [newspaper, setNewspaper] = useState("69.2");
+  const [tv, setTv] = useState("180.8");
+  const [radio, setRadio] = useState("10.8");
+  const [newspaper, setNewspaper] = useState("58.4");
 
   const [isAdPredicting, setIsAdPredicting] = useState(false);
   const [adPredictionResult, setAdPredictionResult] = useState(null);
   const [adError, setAdError] = useState(null);
+  const [modelInfo, setModelInfo] = useState(null);
 
-  // Load uploaded datasets on mount for revenue forecasting
+  // Load uploaded datasets and model metadata on mount
   useEffect(() => {
     loadDatasetList();
+    fetchModelInfo()
+      .then((info) => setModelInfo(info))
+      .catch((err) => console.warn("Could not load model info:", err));
   }, []);
 
   async function loadDatasetList() {
@@ -142,21 +147,30 @@ function Prediction() {
   /* ---------------------------------------------------------
      HANDLER: FINANCIAL REVENUE FORECASTING
   --------------------------------------------------------- */
-  async function handleForecastSubmit(e) {
-    if (e) e.preventDefault();
+  async function handleForecastSubmit(e, overrideHorizon = null) {
+    if (e && e.preventDefault) e.preventDefault();
     if (!selectedDatasetId) {
       setForecastError("Please select an uploaded dataset to generate a forecast.");
       return;
     }
 
+    const targetHorizon = overrideHorizon !== null ? overrideHorizon : horizonDays;
+
     try {
       setIsForecasting(true);
       setForecastError(null);
-      setForecastResult(null);
+
+      // Pass user's local date (YYYY-MM-DD) so backend dynamically anchors accurately for client's timezone
+      const now = new Date();
+      const localYear = now.getFullYear();
+      const localMonth = String(now.getMonth() + 1).padStart(2, "0");
+      const localDay = String(now.getDate()).padStart(2, "0");
+      const clientToday = `${localYear}-${localMonth}-${localDay}`;
 
       const res = await forecastRevenue({
         dataset_id: selectedDatasetId,
-        horizon_days: horizonDays,
+        horizon_days: targetHorizon,
+        anchor_date: clientToday,
       });
 
       setForecastResult(res);
@@ -217,29 +231,38 @@ function Prediction() {
       ...Array(fc.length).fill(null),
     ];
 
-    // Bridge point: last historical value connects to first forecast point
-    const lastHistVal = hist.length > 0 ? hist[hist.length - 1].revenue : null;
-    const padding = Array(Math.max(0, hist.length - 1)).fill(null);
+    // Determine if the forecast is contiguous with the historical actuals
+    // If contiguous (e.g. fc[0] is exactly 1 calendar day after hist[last]), bridge the line.
+    // Otherwise, keep historical actuals and forecast separate without drawing a bridge across date gaps (Requirement 5).
+    const isContiguous = (() => {
+      if (hist.length === 0 || fc.length === 0) return false;
+      const lastHistStr = hist[hist.length - 1].date;
+      const firstFcStr = fc[0].date;
+      const d1 = new Date(lastHistStr);
+      const d2 = new Date(firstFcStr);
+      const diffMs = d2.getTime() - d1.getTime();
+      const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+      return diffDays === 1;
+    })();
 
-    // Forecast series: padding + last historical value + forecast values
-    const fcSeries = [
-      ...padding,
-      lastHistVal,
-      ...fc.map((p) => p.forecast_revenue),
-    ];
+    const lastHistVal = hist.length > 0 ? hist[hist.length - 1].revenue : null;
+    const padding = Array(isContiguous ? Math.max(0, hist.length - 1) : hist.length).fill(null);
+
+    // Forecast series:
+    // If contiguous: [null*(N-1), lastHistVal, ...fcValues]
+    // If separated: [null*N, ...fcValues]
+    const fcSeries = isContiguous
+      ? [...padding, lastHistVal, ...fc.map((p) => p.forecast_revenue)]
+      : [...padding, ...fc.map((p) => p.forecast_revenue)];
 
     // Confidence interval upper and lower bounds
-    const upperBoundSeries = [
-      ...padding,
-      lastHistVal,
-      ...fc.map((p) => p.upper_bound),
-    ];
+    const upperBoundSeries = isContiguous
+      ? [...padding, lastHistVal, ...fc.map((p) => p.upper_bound)]
+      : [...padding, ...fc.map((p) => p.upper_bound)];
 
-    const lowerBoundSeries = [
-      ...padding,
-      lastHistVal,
-      ...fc.map((p) => p.lower_bound),
-    ];
+    const lowerBoundSeries = isContiguous
+      ? [...padding, lastHistVal, ...fc.map((p) => p.lower_bound)]
+      : [...padding, ...fc.map((p) => p.lower_bound)];
 
     return {
       labels: allLabels.map((d) => {
@@ -633,7 +656,12 @@ function Prediction() {
                           <button
                             key={h}
                             type="button"
-                            onClick={() => setHorizonDays(h)}
+                            onClick={() => {
+                              setHorizonDays(h);
+                              if (forecastResult) {
+                                handleForecastSubmit(null, h);
+                              }
+                            }}
                             style={{
                               padding: "9px 0",
                               border:
@@ -728,6 +756,39 @@ function Prediction() {
             {/* Forecast Output Display */}
             {forecastResult && (
               <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+                {/* Forecast Advisories Banner */}
+                {forecastResult.warnings && forecastResult.warnings.length > 0 && (
+                  <div
+                    style={{
+                      background: "#fffbeb",
+                      border: "1px solid #fde68a",
+                      borderRadius: "12px",
+                      padding: "16px 20px",
+                      color: "#92400e",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        fontWeight: "600",
+                        marginBottom: "6px",
+                      }}
+                    >
+                      <AlertTriangle size={18} color="#d97706" />
+                      <span>Forecast Model Advisories</span>
+                    </div>
+                    <ul style={{ margin: 0, paddingLeft: "20px", fontSize: "0.875rem" }}>
+                      {forecastResult.warnings.map((w, idx) => (
+                        <li key={idx} style={{ marginTop: "4px" }}>
+                          {w}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 {/* 1. Summary KPI Cards */}
                 <div
                   style={{
@@ -1413,7 +1474,7 @@ function Prediction() {
                         margin: 0,
                       }}
                     >
-                      Generated via Gradient Boosting ML Pipeline ($R^2 = 0.9587$)
+                      Generated via {modelInfo?.model_name || "Gradient Boosting Regressor"} (R² = {modelInfo?.test_metrics?.r2 ?? "0.9587"})
                     </p>
                   </div>
 
@@ -1430,6 +1491,28 @@ function Prediction() {
                     ✓ Model Inference Complete
                   </div>
                 </div>
+
+                {/* Extrapolation Warning Alert (A4 fix) */}
+                {adPredictionResult?.extrapolation_warning && (
+                  <div
+                    style={{
+                      background: "#fffbeb",
+                      border: "1px solid #fde68a",
+                      color: "#92400e",
+                      borderRadius: "10px",
+                      padding: "12px 16px",
+                      marginBottom: "16px",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
+                    <AlertTriangle size={18} color="#d97706" style={{ flexShrink: 0 }} />
+                    <span style={{ fontSize: "0.875rem" }}>
+                      {adPredictionResult.extrapolation_warning}
+                    </span>
+                  </div>
+                )}
 
                 {/* Main Prominent Metric */}
                 <div

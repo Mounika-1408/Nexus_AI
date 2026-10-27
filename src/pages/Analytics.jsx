@@ -29,6 +29,7 @@ import {
 import { Line, Bar } from "react-chartjs-2";
 
 import Sidebar from "../components/Sidebar";
+import PowerBIFrame from "../components/PowerBIFrame";
 import {
   fetchDatasets,
   fetchDatasetSummary,
@@ -1636,6 +1637,11 @@ export default function Analytics() {
               </div>
             </>
           )}
+
+          {/* =================================================
+              MICROSOFT POWER BI EMBEDDED DASHBOARD
+          ================================================= */}
+          <PowerBIFrame />
         </main>
       </div>
 

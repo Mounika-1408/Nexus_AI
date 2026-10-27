@@ -45,31 +45,34 @@ function Dashboard() {
         setSelectedDatasetId(data[0].id);
         fetchDetailsForDataset(data[0].id);
 
-        // Fetch metadata for first few datasets to estimate quality score and total records
+        // Fetch metadata in parallel to compute actual quality score and total records
+        const metaResults = await Promise.all(
+          data.map((ds) => fetchDatasetMetadata(ds.id).catch(() => null))
+        );
+
         let totalRecs = 0;
         let qualitySum = 0;
         let qualityCount = 0;
 
-        for (const ds of data) {
-          try {
-            const meta = await fetchDatasetMetadata(ds.id);
-            if (meta) {
-              if (meta.total_rows !== undefined) totalRecs += meta.total_rows;
-              if (meta.data_quality_score !== undefined) {
-                qualitySum += meta.data_quality_score;
-                qualityCount++;
-              }
+        for (const meta of metaResults) {
+          if (meta) {
+            if (typeof meta.total_rows === "number") totalRecs += meta.total_rows;
+            if (typeof meta.data_quality_score === "number") {
+              qualitySum += meta.data_quality_score;
+              qualityCount++;
             }
-          } catch {
-            // Ignore metadata fetch error for individual dataset if missing
           }
         }
 
-        const avgScore = qualityCount > 0 ? (qualitySum / qualityCount).toFixed(1) + "%" : "98.5%";
+        const anyProcessing = data.some((d) => d.status === "processing");
+        const anyFailed = data.some((d) => d.status === "failed");
+        const realStatus = anyProcessing ? "Processing" : anyFailed ? "Warning" : "Active";
+        const avgScore = qualityCount > 0 ? (qualitySum / qualityCount).toFixed(1) + "%" : "N/A";
+
         setKpiData({
           totalDatasets: data.length,
-          totalRecords: totalRecs > 0 ? totalRecs : data.length * 44,
-          etlStatus: "Completed",
+          totalRecords: totalRecs,
+          etlStatus: realStatus,
           avgQualityScore: avgScore,
         });
       } else {
@@ -77,7 +80,7 @@ function Dashboard() {
           totalDatasets: 0,
           totalRecords: 0,
           etlStatus: "Idle",
-          avgQualityScore: "100%",
+          avgQualityScore: "N/A",
         });
       }
     } catch (err) {
